@@ -1,0 +1,58 @@
+.container {
+  min-height: 100vh;
+  padding: 32px 24px 48px;
+  text-align: center;
+  background-color: #01173f;
+  color: rgb(239, 143, 18);
+}
+
+.container h1 {
+  margin: 0 0 24px;
+}
+
+.alldevelopers,
+.frontend-only,
+.add_dev,
+.add-developer-form button,
+.skills_button {
+  margin: 0 8px 12px;
+}
+
+.add-developer-form {
+  margin: 24px 0 32px;
+}
+
+.add-developer-form form {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.profile-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.profile-card {
+  padding: 16px;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-name,
+.profile-role
+  {
+    margin: 12px 0 4px;
+    color: rgb(235, 217, 58);
+  }
+.profile-skills {
+  margin: 8px 0;
+  color: rgb(30, 220, 163);
+}
