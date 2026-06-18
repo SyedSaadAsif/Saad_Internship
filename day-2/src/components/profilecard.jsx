@@ -18,6 +18,8 @@ function Profile_card(props) {
              <button className="skills_button" onClick={() => setStatus(!status)}>
                 {status ? "Hide Skills" : "Show Skills"}
             </button>
+             <button className="delete_button" onClick={() => props.onDelete(props.id)}>Delete</button>
+             <button className="edit_button" onClick={() => props.onStartEdit(props)}>Edit</button>
         </div>
     );
 }
