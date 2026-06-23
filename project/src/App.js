@@ -1,254 +1,394 @@
-import { useState, useEffect } from 'react';
-import developers from './data/developers';
-import ProfileCard from './components/profilecard';
-import './App.css';
+import { useState, useEffect } from "react";
+import DeveloperCard from "./components/DeveloperCard";
+import "./App.css";
+
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Toast from "react-bootstrap/Toast";
 
 function App() {
-  const [filter, setFilter] = useState('all');
-  const [developerList, setDeveloperList] = useState(() => {
-  const savedDevelopers =
-    localStorage.getItem("developers");
+  const [users, setUsers] = useState([]);
+  const [localUsers, setLocalUsers] = useState([]);
 
-  return savedDevelopers
-    ? JSON.parse(savedDevelopers)
-    : developers;
-});
-  useEffect(() => {
-  localStorage.setItem(
-    "developers",
-    JSON.stringify(developerList)
-  );
-}, [developerList]);
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [isformvalid, setIsFormValid] = useState(true);
-  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [skills, setSkills] = useState("");
+
   const [searchTerm, setSearchTerm] = useState("");
-  let filteredDevelopers = developerList;
-  if (filter === 'frontend') {
-    filteredDevelopers = developerList.filter(dev => dev.role.includes('Frontend'));
-  }
-  else if (filter === 'backend') {
-    filteredDevelopers = developerList.filter(dev => dev.role.includes('Backend'));
-  } 
-  else if(searchTerm.trim() !== '') {
-    filteredDevelopers = developerList.filter(dev => 
-      dev.name.toLowerCase()===(searchTerm.trim().toLowerCase())
-    );
-  }
-  else {
-    filteredDevelopers = developerList;
-  }
+  const [filterBy, setFilterBy] = useState("name");
 
-  const [form, setForm] = useState({
-    name: '',
-    role: '',
-    skills: '',
-    profileImage: '',
-  });
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const startEdit = (developer) => {
-  setEditingId(developer.id);
-  setIsFormVisible(true);
-  setForm({
-    name: developer.name,
-    role: developer.role,
-    skills: developer.skills.join(', '),
-    profileImage: developer.profileImage || developer.image || '',
-  });
-}
-  const saveDeveloper = () => {
-  const updatedList =
-    developerList.map((developer) =>
-      developer.id === editingId
-        ? {
-            ...developer,
-            name: form.name,
-            role: form.role,
-            skills: form.skills
-              .split(',')
-              .map((skill) => skill.trim())
-              .filter(Boolean),
-            profileImage: form.profileImage,
-          }
-        : developer
-    );
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  setDeveloperList(updatedList);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
-  setEditingId(null);
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
 
-  setForm({
-    name: '',
-    role: '',
-    skills: '',
-    profileImage: '',
-  });
-};
-  const deleteDeveloper = (id) => {
-  const updatedList =
-    developerList.filter(
-      (developer) =>
-        developer.id !== id
-    );
+        return response.json();
+      })
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
-  setDeveloperList(updatedList);
-};
-  const addDeveloper = (event) => {
-    event.preventDefault();
-    if(!form.name.trim() || !form.role.trim() || !form.skills.trim()) {
-      setIsFormValid(false);
+  const handleShowUser = (user) => {
+    setSelectedUser(user);
+    setShowModal(true);
+  };
+
+  const addUser = () => {
+    if (!name || !email || !role || !skills) {
       return;
     }
-    const newDeveloper = {
+
+    const newUser = {
       id: Date.now(),
-      name: form.name,
-      role: form.role,
-      skills: form.skills
-        .split(',')
-        .map((skill) => skill.trim())
-        .filter(Boolean),
-      profileImage: form.profileImage
+      name,
+      email,
+      role,
+      skills,
+      company: {
+        name: "Local Developer",
+      },
     };
 
-    setDeveloperList((currentDevelopers) => [
-      ...currentDevelopers,
-      newDeveloper,
-    ]);
+    setLocalUsers([...localUsers, newUser]);
 
-    setForm({
-      name: '',
-      role: '',
-      skills: '',
-      profileImage: '',
-    });
-    setIsFormVisible(false);
-    setIsFormValid(true);
+    setName("");
+    setEmail("");
+    setRole("");
+    setSkills("");
+
+    setToastMessage("User Added Successfully");
+    setShowToast(true);
   };
 
-  const updateDeveloper = (updatedDeveloper) => {
-    setDeveloperList((currentDevelopers) =>
-      currentDevelopers.map((developer) =>
-        developer.id === updatedDeveloper.id ? updatedDeveloper : developer
-      )
+  const allUsers = [...users, ...localUsers];
+
+  const filteredUsers = allUsers.filter((user) => {
+    if (filterBy === "name") {
+      return user.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+    }
+
+    return user.company?.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  });
+
+  const usersPerPage = 4;
+
+  const indexOfLastUser =
+    currentPage * usersPerPage;
+
+  const indexOfFirstUser =
+    indexOfLastUser - usersPerPage;
+
+  const currentUsers = filteredUsers.slice(
+    indexOfFirstUser,
+    indexOfLastUser
+  );
+
+  const totalPages = Math.ceil(
+    filteredUsers.length / usersPerPage
+  );
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <h2>Loading Developers...</h2>
+      </div>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <div className="loading-screen">
+        <h2>{error}</h2>
+      </div>
+    );
+  }
+
   return (
-    <div className="container">
-      <h1>Developers Profile Card</h1>
-      <h2>
-        Total Developers : {filteredDevelopers.length}
-      </h2>
-      <button className="alldevelopers" onClick={() => setFilter("all")}>All Developers </button>
-      <button className="frontend-only" onClick={() => setFilter("frontend")}>Frontend Only</button>
-      <button className="backend-only" onClick={() => setFilter("backend")}>Backend Only</button>
-      <button className="add_dev" type="button" onClick={() => setIsFormVisible((visible) => !visible || setIsFormValid(true))}>Add Developer</button>
-      <button className="search_dev" type="button" onClick={() => setSearchTerm((term) => term ? '' : ' ')}>Search Developer</button>
-      {!isformvalid && <p className="error">Please fill in all required fields.</p>}
+    <Container className="py-4">
+      <h1 className="dashboard-title">
+        Developer Management Dashboard
+      </h1>
 
-      {searchTerm && (
-        <>
-        <input
-          type="text"
-          placeholder="Search Developer"
-          value={searchTerm}
-          onChange={(e) =>
-            setSearchTerm(e.target.value)
-          }
-        />
-        <button type="button" onClick={() => setSearchTerm('')}>
-          cancel
-        </button>
-        </>
-      )}
+      {/* Search Section */}
+      <div className="search-section">
+        <Row>
+          <Col md={4}>
+            <select
+              className="form-select"
+              value={filterBy}
+              onChange={(e) =>
+                setFilterBy(e.target.value)
+              }
+            >
+              <option value="name">
+                Search by Name
+              </option>
 
-      <div className="add-developer-form">
-        {isFormVisible && (
-          <form onSubmit={addDeveloper}>
+              <option value="company">
+                Search by Company
+              </option>
+            </select>
+          </Col>
+
+          <Col md={8}>
             <input
+              className="form-control"
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </Col>
+        </Row>
+      </div>
+
+      <h5 className="user-count">
+        Total Users: {filteredUsers.length}
+      </h5>
+
+      {/* Cards */}
+      <Row>
+        {currentUsers.map((user) => (
+          <Col
+            key={user.id}
+            xs={12}
+            sm={6}
+            md={4}
+            lg={6}
+            className="mb-4"
+          >
+            <DeveloperCard
+              user={user}
+              onViewDetails={
+                handleShowUser
+              }
+            />
+          </Col>
+        ))}
+      </Row>
+
+      {/* Add User Form */}
+      <div className="form-section">
+        <h4>Add New Developer</h4>
+
+        <Row>
+          <Col md={3}>
+            <input
+              className="form-control"
               type="text"
               placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm((currentForm) => ({
-                ...currentForm,
-                name: e.target.value,
-              }))}
+              value={name}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
             />
+          </Col>
+
+          <Col md={3}>
             <input
+              className="form-control"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+            />
+          </Col>
+
+          <Col md={3}>
+            <input
+              className="form-control"
               type="text"
               placeholder="Role"
-              value={form.role}
-              onChange={(e) => setForm((currentForm) => ({
-                ...currentForm,
-                role: e.target.value,
-              }))}
+              value={role}
+              onChange={(e) =>
+                setRole(e.target.value)
+              }
             />
+          </Col>
+
+          <Col md={3}>
             <input
+              className="form-control"
               type="text"
-              placeholder="Skills (comma separated)"
-              value={form.skills}
-              onChange={(e) => setForm((currentForm) => ({
-                ...currentForm,
-                skills: e.target.value,
-              }))}
+              placeholder="Skills"
+              value={skills}
+              onChange={(e) =>
+                setSkills(e.target.value)
+              }
             />
-            <input
-              type="text"
-              placeholder="Profile Image URL"
-              value={form.profileImage}
-              onChange={(e) => setForm((currentForm) => ({
-                ...currentForm,
-                profileImage: e.target.value,
-              }))}
-            />
-            {(!editingId) && (
-              <div>
-              <button type="submit">
-                Add Developer
-              </button>
-              <button type="button" onClick={() => setIsFormVisible(false) || setForm({
-                name: '',
-                role: '',
-                skills: '',
-                profileImage: '',
-              })}>
-                Cancel
-              </button>
-              </div>
-            )}
-            {editingId && (
-              <div>
-              <button type="button" onClick={() => setIsFormVisible(false) || saveDeveloper()}>
-                Save
-              </button>
-              <button type="button" onClick={() => setIsFormVisible(false) || setEditingId(null) || setForm({
-                name: '',
-                role: '',
-                skills: '',
-                profileImage: '',
-              })}>
-                Cancel
-              </button>
-              </div>
-            )}
-          </form>
+          </Col>
+        </Row>
+
+        <Button
+          variant="success"
+          className="mt-3"
+          onClick={addUser}
+          disabled={
+            !name ||
+            !email ||
+            !role ||
+            !skills
+          }
+        >
+          Add User
+        </Button>
+      </div>
+
+      {/* Pagination */}
+      <div className="pagination-section">
+        {Array.from(
+          { length: totalPages },
+          (_, index) => (
+            <Button
+              key={index}
+              variant={
+                currentPage ===
+                index + 1
+                  ? "primary"
+                  : "outline-primary"
+              }
+              className="me-2"
+              onClick={() =>
+                setCurrentPage(
+                  index + 1
+                )
+              }
+            >
+              {index + 1}
+            </Button>
+          )
         )}
       </div>
-      <div className="profile-cards">
-        {filteredDevelopers.map((dev) => (
-          <ProfileCard
-            key={dev.id}
-            id={dev.id}
-            name={dev.name}
-            role={dev.role}
-            skills={dev.skills}
-            image={dev.profileImage}
-            onUpdate={updateDeveloper}
-            onDelete={deleteDeveloper}
-            onStartEdit={startEdit}
-          />
-        ))}
-        </div>
-    </div>
+
+      {/* Modal */}
+      <Modal
+        backdrop="static"
+        color="primary"
+        show={showModal}
+        onHide={() =>
+          setShowModal(false)
+        }
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Developer Details
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {selectedUser && (
+            <>
+              <p>
+                <strong>Name:</strong>{" "}
+                {selectedUser.name}
+              </p>
+
+              {selectedUser.email && (
+                <p>
+                  <strong>Email:</strong>{" "}
+                  {selectedUser.email}
+                </p>
+              )}
+
+              {selectedUser.role && (
+                <p>
+                  <strong>Role:</strong>{" "}
+                  {selectedUser.role}
+                </p>
+              )}
+
+              {selectedUser.skills && (
+                <p>
+                  <strong>Skills:</strong>{" "}
+                  {selectedUser.skills}
+                </p>
+              )}
+
+              <p>
+                <strong>Company:</strong>{" "}
+                {
+                  selectedUser.company
+                    ?.name
+                }
+              </p>
+
+              {selectedUser.phone && (
+                <p>
+                  <strong>Phone:</strong>{" "}
+                  {selectedUser.phone}
+                </p>
+              )}
+            </>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="primary"
+            onClick={() =>
+              setShowModal(false)
+            }
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Toast */}
+      <div className="toast-container-custom">
+        <Toast
+          position="bottom-end"
+          show={showToast}
+          onClose={() =>
+            setShowToast(false)
+          }
+          delay={3000}
+          autohide
+        >
+          <Toast.Header>
+            <strong>
+              Notification
+            </strong>
+          </Toast.Header>
+
+          <Toast.Body>
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </div>
+    </Container>
   );
 }
 
