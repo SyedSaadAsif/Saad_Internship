@@ -1,24 +1,90 @@
+import { Link } from "react-router-dom";
+
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+
 function DeveloperCard({
   user,
-  onViewDetails
+  onDelete,
+  onViewDetails,
 }) {
   return (
-    <Card className="developer-card">
+    <Card className="developer-card h-100">
+
       <Card.Body>
+
         <Card.Title>
           {user.name}
         </Card.Title>
 
+        <Card.Subtitle className="mb-2 text-muted">
+          {user.role || "Developer"}
+        </Card.Subtitle>
+
+        <Card.Text>
+
+          <strong>Email:</strong>
+
+          <br />
+
+          {user.email}
+
+        </Card.Text>
+
+        <Card.Text>
+
+          <strong>Company:</strong>
+
+          <br />
+
+          {user.company?.name}
+
+        </Card.Text>
+
+        {user.skills && (
+          <Card.Text>
+
+            <strong>Skills:</strong>
+
+            <br />
+
+            {user.skills}
+
+          </Card.Text>
+        )}
+
+      </Card.Body>
+
+      <Card.Footer className="d-flex justify-content-between">
+
         <Button
+          variant="primary"
           onClick={() =>
             onViewDetails(user)
           }
         >
-          View Details
+          View
         </Button>
-      </Card.Body>
+
+        <Link
+          to={`/edit-user/${user.id}`}
+        >
+          <Button variant="warning">
+            Edit
+          </Button>
+        </Link>
+
+        <Button
+          variant="danger"
+          onClick={() =>
+            onDelete(user.id)
+          }
+        >
+          Delete
+        </Button>
+
+      </Card.Footer>
+
     </Card>
   );
 }
