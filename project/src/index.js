@@ -1,32 +1,25 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { ToastProvider } from "./context/ToastContext";
-import App from "./App";
-
-import { UserProvider } from "./context/UserContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";   // <-- ADD THIS
 
-const root =
-    ReactDOM.createRoot(
-        document.getElementById("root")
-    );
+import { ToastProvider } from "./context/ToastContext";
+import { UserProvider } from "./context/UserContext";
+
+import App from "./App";
+
+const root = ReactDOM.createRoot(
+    document.getElementById("root")
+);
 
 root.render(
-
     <UserProvider>
-
-    <ToastProvider>
-
-        <BrowserRouter>
-
-            <App />
-
-        </BrowserRouter>
-
-    </ToastProvider>
-
-</UserProvider>
-
+        <ToastProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </ToastProvider>
+    </UserProvider>
 );

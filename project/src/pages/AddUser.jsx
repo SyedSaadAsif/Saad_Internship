@@ -30,7 +30,7 @@ const { showToast } = useToast();
     ]);
     
     showToast("User Added Successfully");
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

@@ -29,7 +29,7 @@ function EditUser() {
       )
     );
     showToast("Developer updated successfully!");
-    navigate("/");
+    navigate("/dashboard");
   };
 
   if (!selectedUser) {

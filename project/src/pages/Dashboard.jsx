@@ -1,10 +1,7 @@
 import { useMemo, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import "../App.css";
 import { useUsers } from "../context/UserContext";
-
 import DeveloperCard from "../components/DeveloperCard";
-import UserModal from "../components/UserModal";
 import SearchBar from "../components/SearchBar";
 
 import Container from "react-bootstrap/Container";
@@ -13,7 +10,6 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
 function Dashboard() {
-
     const {
         users,
         setUsers,
@@ -31,13 +27,6 @@ function Dashboard() {
 
     const [filterBy, setFilterBy] =
         useState("name");
-
-
-    const [selectedUser, setSelectedUser] =
-        useState(null);
-
-    const [showModal, setShowModal] =
-        useState(false);
 
     const filteredUsers = useMemo(() => {
 
@@ -153,14 +142,7 @@ function Dashboard() {
         );
 
     };
-
-    const handleShowUser = (user) => {
-
-        setSelectedUser(user);
-
-        setShowModal(true);
-
-    };
+    
 
     return (
 
@@ -174,7 +156,7 @@ function Dashboard() {
 
                 <Col md={9}>
 
-                    <SearchBar className="search-section"
+                    <SearchBar
 
                         searchTerm={searchTerm}
 
@@ -237,7 +219,7 @@ function Dashboard() {
                             onDelete={deleteUser}
 
                             onViewDetails={
-                                handleShowUser
+                                user
                             }
 
                         />
@@ -247,18 +229,6 @@ function Dashboard() {
                 ))}
 
             </Row>
-
-            <UserModal
-
-                show={showModal}
-
-                handleClose={() =>
-                    setShowModal(false)
-                }
-
-                selectedUser={selectedUser}
-
-            />
 
 
           <div

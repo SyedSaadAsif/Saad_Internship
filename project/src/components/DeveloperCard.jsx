@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 
@@ -57,19 +56,18 @@ function DeveloperCard({
 
       <Card.Footer className="d-flex justify-content-between">
 
-        <Button
-          variant="primary"
-          onClick={() =>
-            onViewDetails(user)
-          }
+       <Link
+          to={`/developer/${user.id}`}
         >
-          View
-        </Button>
+          <Button variant="warning">
+            View Details
+          </Button>
+        </Link>
 
         <Link
           to={`/edit-user/${user.id}`}
         >
-          <Button variant="warning">
+          <Button variant="primary">
             Edit
           </Button>
         </Link>
