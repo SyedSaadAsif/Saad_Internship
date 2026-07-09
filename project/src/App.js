@@ -8,16 +8,18 @@ import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
 import NotFound from "./pages/NotFound";
 import DeveloperDetails from "./pages/DeveloperDetails";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotificationToast from "./components/NotificationToast";
+import EditHistory from "./pages/EditHistory";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-
+    const { isLoggedIn } = useAuth();
     return (
 
         <>
 
-            <NavigationBar />
+            {isLoggedIn && <NavigationBar />}
 
             <Routes>
 
@@ -28,21 +30,43 @@ function App() {
 
                 <Route
                     path="/dashboard"
-                    element={<Dashboard />}
+                    element={<ProtectedRoute>
+                            <Dashboard />
+                            </ProtectedRoute>}
                 />
 
                 <Route
                     path="/add-user"
-                    element={<AddUser />}
+                    element={
+                        <ProtectedRoute>
+                            <AddUser />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/edit-user/:id"
-                    element={<EditUser />}
+                    element={
+                        <ProtectedRoute>
+                            <EditUser />
+                        </ProtectedRoute>
+                    }
                 />
                 <Route
                     path="/developer/:id"
-                    element={<DeveloperDetails />}
+                    element={
+                        <ProtectedRoute>
+                            <DeveloperDetails />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/history"
+                    element={
+                    <ProtectedRoute>
+                    <EditHistory />
+                    </ProtectedRoute>
+                }
                 />
                 <Route
                     path="*"

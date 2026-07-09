@@ -9,13 +9,15 @@ function AddUser() {
 const { showToast } = useToast();
 
 
-  const { setUsers } = useUsers();
+  const {
+    users,
+    addUser
+} = useUsers();
 
   const navigate = useNavigate();
 
-  const addUser = (formData) => {
+  const addUser1 = (formData) => {
     const newUser = {
-      id: Date.now(),
 
       ...formData,
 
@@ -23,11 +25,18 @@ const { showToast } = useToast();
         name: "Local Developer",
       },
     };
+    const duplicate = users.find(
+        (user) =>
+            user.email.toLowerCase() ===
+                formData.email.toLowerCase() &&
+            user.id !== formData.id
+    );
 
-    setUsers((prevUsers) => [
-      ...prevUsers,
-      newUser,
-    ]);
+    if (duplicate) {
+        alert("A developer with this email already exists.");
+        return;
+    }
+    addUser(newUser);
     
     showToast("User Added Successfully");
     navigate("/dashboard");
@@ -46,7 +55,7 @@ const { showToast } = useToast();
 
           <UserForm
             initialValues={null}
-            onSubmit={addUser}
+            onSubmit={addUser1}
             buttonText="Add Developer"
           />
 

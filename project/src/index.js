@@ -7,6 +7,7 @@ import "./App.css";   // <-- ADD THIS
 
 import { ToastProvider } from "./context/ToastContext";
 import { UserProvider } from "./context/UserContext";
+import { AuthProvider } from "./context/AuthContext";
 
 import App from "./App";
 
@@ -15,6 +16,7 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
+    <AuthProvider>
     <UserProvider>
         <ToastProvider>
             <BrowserRouter>
@@ -22,4 +24,5 @@ root.render(
             </BrowserRouter>
         </ToastProvider>
     </UserProvider>
+</AuthProvider>
 );

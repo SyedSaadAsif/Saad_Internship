@@ -5,11 +5,13 @@ import Button from "react-bootstrap/Button";
 function NotFound() {
   return (
     <Container className="text-center py-5">
-      <h1 className="display-1">404</h1>
+      <h1 className="display-1" style={{ color: "white" }}>
+        404
+      </h1>
 
-      <h3>Page Not Found</h3>
+      <h3 style={{ color: "white" }}>Page Not Found</h3>
 
-      <p>
+      <p style={{ color: "white" }}>
         The page you are looking for doesn't exist.
       </p>
 

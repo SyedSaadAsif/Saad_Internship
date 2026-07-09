@@ -6,32 +6,82 @@ import Alert from "react-bootstrap/Alert";
 import UserForm from "../components/UserForm";
 import { useUsers } from "../context/UserContext";
 import { useToast } from "../context/ToastContext";
+
 function EditUser() {
   const { id } = useParams();
   const { showToast } = useToast();
   const navigate = useNavigate();
-
-  const { users, setUsers } = useUsers();
+  const {
+    users,
+    addHistory,
+    updateUser
+} = useUsers();
 
   const selectedUser = users.find(
-    (user) => user.id === Number(id)
-  );
-
-  const updateUser = (formData) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === Number(id)
-          ? {
-              ...user,
-              ...formData,
-            }
-          : user
-      )
+    user => user.id === id
+);
+  
+  const updateUser1 = (formData) => {
+    const duplicate = users.find(
+        (user) =>
+            user.email.toLowerCase() ===
+                formData.email.toLowerCase() &&
+            user.id !== selectedUser.id
     );
-    showToast("Developer updated successfully!");
-    navigate("/dashboard");
-  };
 
+    if (duplicate) {
+        alert("A developer with this email already exists.");
+        return;
+    }
+  const fields = [
+    "name",
+    "email",
+    "role",
+    "skills"
+  ];
+  if(formData.name === selectedUser.name && formData.email === selectedUser.email && formData.role === selectedUser.role && formData.skills === selectedUser.skills){
+    alert("No changes made to the developer's information.");
+    navigate("/dashboard");
+    return;
+  }
+  fields.forEach((field) => {
+
+    if (selectedUser[field] !== formData[field]) {
+
+      addHistory({
+
+        id: Date.now() + Math.random(),
+
+        developerId: selectedUser.id,
+
+        developerName: selectedUser.name,
+
+        field,
+
+        oldValue: selectedUser[field],
+
+        newValue: formData[field],
+
+        editedAt: new Date().toLocaleString(),
+
+        editedBy: localStorage.getItem("admin") || "Admin"
+
+      });
+
+    }
+
+  });
+
+  updateUser(
+    selectedUser.id,
+    formData
+);  
+
+  showToast("Developer updated successfully!");
+
+  navigate("/dashboard");
+};
+  
   if (!selectedUser) {
     return (
       <Container className="py-5">
@@ -55,7 +105,7 @@ function EditUser() {
 
           <UserForm
             initialValues={selectedUser}
-            onSubmit={updateUser}
+            onSubmit={updateUser1}
             buttonText="Update Developer"
           />
 

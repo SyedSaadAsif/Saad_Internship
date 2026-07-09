@@ -13,8 +13,8 @@ function UserForm({
 
     buttonText
 
-}) {
-
+})
+{
     const [formData, setFormData] =
         useState({
 
@@ -68,13 +68,36 @@ function UserForm({
     };
 
     const handleSubmit = (e) => {
+    e.preventDefault();
 
-        e.preventDefault();
+    // Empty fields
+    if (
+        !formData.name ||
+        !formData.email
+    ) {
+        alert("Please fill all fields.");
+        return;
+    }
 
-        onSubmit(formData);
+    // Name validation
+    if (!/^[A-Za-z ]+$/.test(formData.name)) {
+        alert("Name should contain only letters.");
+        return;
+    }
 
-    };
+    // Email validation
+    if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    ) {
+        alert("Please enter a valid email.");
+        return;
+    }
 
+    // Duplicate email validation
+    
+
+    onSubmit(formData);
+};
     return (
 
         <Form onSubmit={handleSubmit}>  
@@ -83,39 +106,35 @@ function UserForm({
 
                 <Col md={6}>
 
-                    <Form.Control
+                    <Form.Group className="mb-3">
+  <Form.Label>
+    Name <span className="text-danger">*</span>
+  </Form.Label>
 
-                        name="name"
-
-                        placeholder="Name"
-
-                        value={formData.name}
-
-                        onChange={handleChange}
-
-                        required
-
-                    />
+  <Form.Control
+    type="text"
+    name="name"
+    value={formData.name}
+    onChange={handleChange}
+  />
+</Form.Group>
 
                 </Col>
 
                 <Col md={6}>
 
-                    <Form.Control
+                    <Form.Group className="mb-3">
+  <Form.Label>
+    Email <span className="text-danger">*</span>
+  </Form.Label>
 
-                        type="email"
-
-                        name="email"
-
-                        placeholder="Email"
-
-                        value={formData.email}
-
-                        onChange={handleChange}
-
-                        required
-
-                    />
+  <Form.Control
+    type="email"
+    name="email"
+    value={formData.email}
+    onChange={handleChange}
+  />
+</Form.Group>
 
                 </Col>
             

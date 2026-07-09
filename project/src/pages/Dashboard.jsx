@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useUsers } from "../context/UserContext";
 import DeveloperCard from "../components/DeveloperCard";
 import SearchBar from "../components/SearchBar";
-
+import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -11,17 +11,21 @@ import Button from "react-bootstrap/Button";
 
 function Dashboard() {
     const {
-        users,
-        setUsers,
-        loading,
-        error
-    } = useUsers();
+    users,
+    deleteUser,
+    loading,
+    error
+} = useUsers();
 
     const [visibleUsers, setVisibleUsers] = useState(8);
-
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
     const loader = useRef(null);
 
-    
+    const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+    };
     const [searchTerm, setSearchTerm] =
         useState("");
 
@@ -35,10 +39,10 @@ function Dashboard() {
             if (filterBy === "name") {
 
                 return user.name
-                    .toLowerCase()
-                    .includes(
-                        searchTerm.toLowerCase()
-                    );
+    .toLowerCase()
+    .includes(
+        searchTerm.toLowerCase()
+    );
 
             }
 
@@ -110,6 +114,7 @@ function Dashboard() {
         if (loader.current) {
 
             observer.unobserve(
+                // eslint-disable-next-line react-hooks/exhaustive-deps
                 loader.current
             );
 
@@ -132,16 +137,6 @@ function Dashboard() {
     if (error) {
         return <h2>{error}</h2>;
     }
-
-    const deleteUser = (id) => {
-
-        setUsers(prev =>
-            prev.filter(user =>
-                user.id !== id
-            )
-        );
-
-    };
     
 
     return (
@@ -216,7 +211,7 @@ function Dashboard() {
 
                             user={user}
 
-                            onDelete={deleteUser}
+                            onDelete={() => handleDeleteClick(user)}    
 
                             onViewDetails={
                                 user
@@ -246,7 +241,54 @@ function Dashboard() {
 
     )}
 
-</div>
+</div
+>
+    <Modal
+    show={showDeleteModal}
+    onHide={() => setShowDeleteModal(false)}
+    centered
+>
+    <Modal.Header closeButton>
+        <Modal.Title>
+            Confirm Delete
+        </Modal.Title>
+    </Modal.Header>
+
+    <Modal.Body>
+        {userToDelete && (
+            <>
+                Are you sure you want to delete
+                <strong> {userToDelete.name}</strong>?
+                <br />
+                This action cannot be undone.
+            </>
+        )}
+    </Modal.Body>
+
+    <Modal.Footer>
+        <Button
+            variant="secondary"
+            onClick={() => setShowDeleteModal(false)}
+        >
+            Cancel
+        </Button>
+
+        <Button
+            variant="danger"
+            onClick={async () => {
+
+    await deleteUser(
+        userToDelete.id
+    );
+
+    setShowDeleteModal(false);
+
+}}
+        >
+            Delete
+        </Button>
+    </Modal.Footer>
+</Modal>
         </Container>
         
 

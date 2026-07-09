@@ -1,27 +1,79 @@
-.hero {
-    min-height: 85vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(to right, #3e94ea, #1f2831);    
+.login-page{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #0d6efd,
+        #6610f2
+    );
+
 }
 
-.hero-card {
-    max-width: 700px;
-    padding: 60px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.1);
-    background: rgb(255, 255, 255);
+.login-card{
+
+    width:450px;
+    left:34%;
+    border:none;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:20px;
+
 }
 
-.hero-title {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #273549;
+.login-icon{
+
+    width:90px;
+
+    height:90px;
+
+    margin:auto;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:50%;
+
+    background:#0d6efd;
+
+    color:white;
+
+    font-size:40px;
+
 }
 
-.hero-text {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    color: rgb(186, 107, 107);
+.form-control{
+
+    height:50px;
+
+    border-radius:10px;
+
+}
+
+.btn{
+
+    border-radius:10px;
+
+}
+
+.demo-login{
+
+    text-align:center;
+
+    color:#666;
+}
+
+.demo-login p{
+
+    margin-bottom:5px;
 }

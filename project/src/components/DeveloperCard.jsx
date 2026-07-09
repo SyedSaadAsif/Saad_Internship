@@ -73,13 +73,11 @@ function DeveloperCard({
         </Link>
 
         <Button
-          variant="danger"
-          onClick={() =>
-            onDelete(user.id)
-          }
-        >
-          Delete
-        </Button>
+    variant="danger"
+    onClick={onDelete}
+>
+    Delete
+</Button>
 
       </Card.Footer>
 
