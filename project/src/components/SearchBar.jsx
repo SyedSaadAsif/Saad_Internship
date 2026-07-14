@@ -1,6 +1,6 @@
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-
+import Button from "react-bootstrap/Button";
 function SearchBar({
 
     searchTerm,
@@ -8,44 +8,13 @@ function SearchBar({
     setSearchTerm,
 
     filterBy,
-
-    setFilterBy
+searchDevelopers,
+    setFilterBy,
 
 }) {
-
     return (
 
         <Row>
-
-            <Col md={4}>
-
-                <select
-                    className="form-select"
-
-                    value={filterBy}
-
-                    onChange={(e)=>
-                        setFilterBy(
-                            e.target.value
-                        )
-                    }
-                >
-
-                    <option value="name">
-
-                        Name
-
-                    </option>
-
-                    <option value="company">
-
-                        Company
-
-                    </option>
-
-                </select>
-
-            </Col>
 
             <Col md={8}>
 
@@ -64,9 +33,17 @@ function SearchBar({
                     }
 
                 />
+              
+
 
             </Col>
-
+            <Col md={4}>
+                     <Button onClick={searchDevelopers}>
+                    Search
+                </Button>
+            </Col>
+                
+            
         </Row>
 
     );

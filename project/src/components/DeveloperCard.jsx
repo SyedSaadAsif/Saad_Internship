@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-
+import { useAuth } from "../context/AuthContext";
 function DeveloperCard({
   user,
   onDelete,
   onViewDetails,
 }) {
+  const { normallogin } = useAuth();
   return (
     <Card className="developer-card h-100">
 
@@ -55,30 +56,31 @@ function DeveloperCard({
       </Card.Body>
 
       <Card.Footer className="d-flex justify-content-between">
-
+        
        <Link
           to={`/developer/${user.id}`}
         >
-          <Button variant="warning">
+          <Button variant="outline-primary">
             View Details
           </Button>
         </Link>
-
+        {!normallogin && (
+          <>
         <Link
           to={`/edit-user/${user.id}`}
         >
-          <Button variant="primary">
+          <Button variant="outline-primary">
             Edit
           </Button>
         </Link>
 
         <Button
-    variant="danger"
+    variant="outline-danger"
     onClick={onDelete}
 >
     Delete
 </Button>
-
+        </>)}
       </Card.Footer>
 
     </Card>

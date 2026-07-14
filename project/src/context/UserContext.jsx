@@ -151,11 +151,33 @@ catch {
         
 
     }, [users]);
-    const addHistory = (record) => {
-    setHistory((prev) => [
+    const addHistory = async (record) => {
+
+    try {
+
+        await addDoc(
+
+            collection(db, "editHistory"),
+
+            record
+
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+    }
+
+    setHistory(prev => [
+
         record,
+
         ...prev
+
     ]);
+
 };
 const addUser = async (newUser) => {
 

@@ -1,5 +1,4 @@
-import { useMemo, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { useUsers } from "../context/UserContext";
 import DeveloperCard from "../components/DeveloperCard";
 import SearchBar from "../components/SearchBar";
@@ -8,7 +7,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-
+import { puter } from '@heyputer/puter.js';
 function Dashboard() {
     const {
     users,
@@ -17,9 +16,11 @@ function Dashboard() {
     error
 } = useUsers();
 
+    const [filteredUsers, setFilteredUsers] = useState(users);
     const [visibleUsers, setVisibleUsers] = useState(8);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [aimode, setAImode] = useState(false);
     const loader = useRef(null);
 
     const handleDeleteClick = (user) => {
@@ -32,29 +33,67 @@ function Dashboard() {
     const [filterBy, setFilterBy] =
         useState("name");
 
-    const filteredUsers = useMemo(() => {
+    const searchDevelopers = async () => {
 
-        return users.filter(user => {
+    try {
+        setAImode(true);
+        const developers = users.map(user => ({
+            id: user.id,
+            name: user.name,
+            role: user.role,
+            skills: user.skills,
+            company: user.company?.name
+        }));
 
-            if (filterBy === "name") {
+        const prompt = `
+You are searching a developer database.
 
-                return user.name
-    .toLowerCase()
-    .includes(
-        searchTerm.toLowerCase()
-    );
+Developers:
 
-            }
+${JSON.stringify(developers)}
 
-            return user.company?.name
-                ?.toLowerCase()
-                .includes(
-                    searchTerm.toLowerCase()
-                );
+User Query:
 
+"${searchTerm}"
+
+Return ONLY a JSON array of matching developer IDs.
+
+Example:
+["abc123","xyz456"]
+
+If none match return [].
+
+Do not explain anything.
+Do not wrap the JSON in markdown.
+`;
+
+        const response = await puter.ai.chat(prompt, {
+            model: "gemini-3.5-flash"
         });
 
-    }, [users, searchTerm, filterBy]);
+        const cleaned = response.message.content
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+        const ids = JSON.parse(cleaned);
+
+        const results = users.filter(user =>
+            ids.includes(user.id)
+        );
+
+        setFilteredUsers(results);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+};
 
     const currentUsers =
     filteredUsers.slice(
@@ -137,7 +176,10 @@ function Dashboard() {
     if (error) {
         return <h2>{error}</h2>;
     }
-    
+    if(searchTerm.trim() === "" && aimode) {
+        setFilteredUsers(users);
+        setAImode(false);
+    }
 
     return (
 
@@ -160,27 +202,9 @@ function Dashboard() {
                         filterBy={filterBy}
 
                         setFilterBy={setFilterBy}
+                        searchDevelopers={searchDevelopers}
 
                     />
-
-                </Col>
-
-                <Col
-                    md={3}
-                    className="text-end"
-                >
-
-                    <Link to="/add-user">
-
-                        <Button
-                            variant="success"
-                        >
-
-                            Add Developer
-
-                        </Button>
-
-                    </Link>
 
                 </Col>
 

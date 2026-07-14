@@ -12,17 +12,33 @@ function Home() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const success = login(username, password);
+  setError("");
 
-    if (success) {
-      navigate("/dashboard");
-    } else {
-      setError("Invalid username or password.");
-    }
-  };
+  if (!username.trim()) {
+    setError("Username is required.");
+    return;
+  }
+
+  const passwordRegex = /^(?=.*\d).{8,}$/;
+
+  if (!passwordRegex.test(password)) {
+    setError(
+      "Password must be at least 8 characters long and contain at least one number."
+    );
+    return;
+  }
+
+  const success = await login(username, password);
+
+  if (success) {
+    navigate("/dashboard");
+  } else {
+    setError("Invalid username or password.");
+  }
+};
 
   return (
     <div className="login-page">
@@ -57,37 +73,45 @@ function Home() {
 
               <Form.Group className="mb-3">
 
-                <Form.Label>
-                  Username
-                </Form.Label>
+  <Form.Label>
+    Username <span style={{ color: "red" }}>*</span>
+  </Form.Label>
 
-                <Form.Control
-                  type="text"
-                  placeholder="Enter username"
-                  value={username}
-                  onChange={(e) =>
-                    setUsername(e.target.value)
-                  }
-                />
+  <Form.Control
+    type="text"
+    placeholder="Enter username"
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+    required
+  />
 
-              </Form.Group>
+  <Form.Text className="text-muted">
+    Username is mandatory.
+  </Form.Text>
 
+</Form.Group>
               <Form.Group className="mb-4">
 
-                <Form.Label>
-                  Password
-                </Form.Label>
+  <Form.Label>
+    Password <span style={{ color: "red" }}>*</span>
+  </Form.Label>
 
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
-                />
+  <Form.Control
+    type="password"
+    placeholder="Enter password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+    pattern="^(?=.*\d).{8,}$"
+    title="Password must be at least 8 characters long and contain at least one number."
+  />
 
-              </Form.Group>
+  <Form.Text className="text-muted">
+    Password must contain at least <strong>8 characters</strong> and
+    <strong> 1 number</strong>.
+  </Form.Text>
+
+</Form.Group>
 
               <Button
                 type="submit"
